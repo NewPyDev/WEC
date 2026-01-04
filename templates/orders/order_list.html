@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Current Orders{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">Current Orders</h1>
+  <a href="{% url 'order_create' %}" class="btn btn-primary">Create New Order</a>
+</div>
+
+{% if orders %}
+<div class="table-responsive">
+  <table class="table table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Order #</th>
+        <th>Client</th>
+        <th>Status</th>
+        <th>Total</th>
+        <th>Created</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>#{{ order.id }}</td>
+        <td>{{ order.client.name }}</td>
+        <td>
+          <span class="badge badge-warning">{{ order.get_status_display }}</span>
+        </td>
+        <td>${{ order.total_amount|floatformat:2 }}</td>
+        <td>{{ order.created_at|date:"M d, Y H:i" }}</td>
+        <td>
+          <a href="{% url 'order_detail' order.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+          <form action="{% url 'order_update_status' order.pk %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="done" />
+            <button class="btn btn-sm btn-success" type="submit">Mark Done</button>
+          </form>
+          <form action="{% url 'order_update_status' order.pk %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="status" value="cancelled" />
+            <button class="btn btn-sm btn-danger" type="submit">Cancel</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No processing orders.</div>
+{% endif %}
+{% endblock %}

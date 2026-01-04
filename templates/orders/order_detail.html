@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-3">Order #{{ order.id }}</h1>
+            
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Order Information -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Order Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Client:</strong> {{ order.client.name }}</p>
+                                    <p><strong>Phone:</strong> {{ order.client.phone }}</p>
+                                    <p><strong>Address:</strong> {{ order.client.address }}</p>
+                                    {% if order.client.email %}
+                                    <p><strong>Email:</strong> {{ order.client.email }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge badge-{% if order.status == 'processing' %}warning{% elif order.status == 'done' %}success{% else %}danger{% endif %}">
+                                            {{ order.get_status_display }}
+                                        </span>
+                                    </p>
+                                    <p><strong>Total Amount:</strong> ${{ order.total_amount|floatformat:2 }}</p>
+                                    <p><strong>Shipping Cost:</strong> ${{ order.shipping_cost|floatformat:2 }}</p>
+                                    <p><strong>Grand Total:</strong> ${{ order.grand_total|floatformat:2 }}</p>
+                                    <p><strong>Created:</strong> {{ order.created_at|date:"M d, Y H:i" }}</p>
+                                    {% if order.updated_at != order.created_at %}
+                                    <p><strong>Last Updated:</strong> {{ order.updated_at|date:"M d, Y H:i" }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if order.notes %}
+                            <div class="row">
+                                <div class="col-12">
+                                    <p><strong>Notes:</strong></p>
+                                    <p class="text-muted">{{ order.notes }}</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Order Items -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Order Items</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in order.items.all %}
+                                        <tr>
+                                            <td>
+                                                {{ item.product.name }}
+                                                {% if item.product.color %}
+                                                    <small class="text-muted">({{ item.product.color }})</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td>${{ item.price|floatformat:2 }}</td>
+                                            <td>${{ item.subtotal|floatformat:2 }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="4" class="text-center">No items in this order</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="3">Subtotal:</th>
+                                            <th>${{ order.total_amount|floatformat:2 }}</th>
+                                        </tr>
+                                        {% if order.shipping_cost %}
+                                        <tr>
+                                            <th colspan="3">Shipping:</th>
+                                            <th>${{ order.shipping_cost|floatformat:2 }}</th>
+                                        </tr>
+                                        {% endif %}
+                                        <tr class="table-active">
+                                            <th colspan="3">Grand Total:</th>
+                                            <th>${{ order.grand_total|floatformat:2 }}</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <!-- Status Update -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Update Order Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{% url 'order_update_status' order.pk %}">
+                                {% csrf_token %}
+                                <div class="form-group mb-3">
+                                    <label for="status">New Status:</label>
+                                    <select name="status" id="status" class="form-control">
+                                        <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                                        <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                        <option value="done" {% if order.status == 'done' %}selected{% endif %}>Done</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">Update Status</button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <a href="{% url 'order_list' %}" class="btn btn-secondary btn-block mb-2">Back to Current Orders</a>
+                            <a href="{% url 'order_history' %}" class="btn btn-outline-secondary btn-block mb-2">View Order History</a>
+                            {% if order.status == 'done' %}
+                            <a href="{% url 'order_shipping_label' order.pk %}" class="btn btn-info btn-block mb-2" target="_blank">🖨️ Print Shipping Label</a>
+                            {% endif %}
+                            <a href="{% url 'order_create' %}" class="btn btn-success btn-block">Create New Order</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

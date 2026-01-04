@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shipping Label - Order #{{ order.id }}</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .no-print { display: none !important; }
+            .print-page { page-break-after: always; }
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            margin: 20px;
+            background: white;
+        }
+        
+        .shipping-label {
+            border: 2px solid #000;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 1px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .company-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .label-title {
+            font-size: 14px;
+            text-decoration: underline;
+        }
+        
+        .section {
+            margin-bottom: 15px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            text-decoration: underline;
+            margin-bottom: 8px;
+        }
+        
+        .info-line {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .order-items {
+            border: 1px solid #000;
+            padding: 8px;
+            margin: 10px 0;
+        }
+        
+        .item-line {
+            margin-bottom: 3px;
+            font-size: 12px;
+        }
+        
+        .totals {
+            border-top: 1px solid #000;
+            padding-top: 8px;
+            margin-top: 10px;
+        }
+        
+        .qr-section {
+            text-align: center;
+            border-top: 1px solid #000;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        .qr-code {
+            width: 120px;
+            height: 120px;
+            margin: 10px auto;
+        }
+        
+        .date-field {
+            border: 1px solid #000;
+            padding: 8px;
+            margin-top: 10px;
+        }
+        
+        .date-input {
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            width: 120px;
+            text-align: center;
+            padding: 2px;
+        }
+        
+        .total-section {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #000;
+            text-align: center;
+        }
+        
+        .grand-total {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px;
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            display: inline-block;
+            min-width: 200px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-print {
+            background: #28a745;
+        }
+        
+        .btn-print:hover {
+            background: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls no-print">
+        <button onclick="window.print()" class="btn btn-print">🖨️ Print Label</button>
+        <a href="{% url 'order_history' %}" class="btn">← Back to Orders</a>
+    </div>
+
+    <div class="shipping-label print-page">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-name">{{ company_name|upper }}</div>
+            <div class="label-title">SHIPPING LABEL</div>
+        </div>
+
+        <!-- Order Information -->
+        <div class="section">
+            <div class="section-title">ORDER DETAILS:</div>
+            <div class="info-line"><strong>Order #:</strong> {{ order.id }}</div>
+            <div class="info-line"><strong>Date:</strong> {{ order.created_at|date:"M d, Y" }}</div>
+            <div class="info-line"><strong>Status:</strong> {{ order.get_status_display|upper }}</div>
+        </div>
+
+        <!-- Client Information -->
+        <div class="section">
+            <div class="section-title">SHIP TO:</div>
+            <div class="info-line"><strong>{{ order.client.name|upper }}</strong></div>
+            <div class="info-line">{{ order.client.phone }}</div>
+            <div class="info-line">{{ order.client.address }}</div>
+            {% if order.client.email %}
+            <div class="info-line">{{ order.client.email }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Order Items -->
+        <div class="section">
+            <div class="section-title">ITEMS:</div>
+            <div class="order-items">
+                {% for item in order.items.all %}
+                <div class="item-line">
+                    {{ item.quantity }}x {{ item.product.name }}
+                    {% if item.product.color %}({{ item.product.color }}){% endif %}
+                    - ${{ item.subtotal|floatformat:2 }}
+                </div>
+                {% endfor %}
+                <div class="totals">
+                    <div class="item-line"><strong>Subtotal: ${{ order.total_amount|floatformat:2 }}</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Information -->
+        <div class="section">
+            {% if order.user.shipping_company_name %}
+            <div class="section-title">SHIPPING VIA:</div>
+            <div class="info-line"><strong>{{ order.user.shipping_company_name|upper }}</strong></div>
+            {% endif %}
+            {% if order.shipping_cost %}
+            <div class="info-line"><strong>Shipping Cost: ${{ order.shipping_cost|floatformat:2 }}</strong></div>
+            {% endif %}
+            <div class="date-field">
+                <strong>SHIPPING DATE:</strong>
+                <div class="date-input">{{ shipping_date|date:"M d, Y" }}</div>
+            </div>
+            
+            <!-- Total Price at Bottom -->
+            <div class="total-section">
+                <div class="grand-total"><strong>TOTAL: ${{ order.grand_total|floatformat:2 }}</strong></div>
+            </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="qr-section">
+            <div><strong>SCAN FOR ORDER INFO</strong></div>
+            <img src="data:image/png;base64,{{ qr_code_base64 }}" class="qr-code" alt="Order QR Code">
+            <div style="font-size: 10px;">Order #{{ order.id }}</div>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; margin-top: 15px; font-size: 10px;">
+            Printed: {{ print_date|date:"M d, Y H:i" }}
+        </div>
+    </div>
+
+    <script>
+        // Auto-print when page loads (optional)
+        // window.onload = function() { window.print(); }
+        
+        // Make shipping date editable when clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('.date-input');
+            dateInput.addEventListener('click', function() {
+                const currentDate = this.textContent.trim();
+                const input = document.createElement('input');
+                input.type = 'date';
+                input.value = new Date().toISOString().split('T')[0];
+                input.style.width = '120px';
+                input.style.textAlign = 'center';
+                
+                input.addEventListener('blur', function() {
+                    const selectedDate = new Date(this.value);
+                    dateInput.textContent = selectedDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short', 
+                        day: 'numeric'
+                    });
+                });
+                
+                this.innerHTML = '';
+                this.appendChild(input);
+                input.focus();
+            });
+        });
+    </script>
+</body>
+</html>

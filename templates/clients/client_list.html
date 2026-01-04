@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<h1>Clients</h1>
+{% if clients %}
+<table class="table">
+    <thead>
+        <tr><th>Name</th><th>Phone</th><th>Email</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+        {% for client in clients %}
+        <tr>
+            <td>{{ client.name }}</td>
+            <td>{{ client.phone }}</td>
+            <td>{{ client.email|default:"-" }}</td>
+            <td><a href="{% url 'client_detail' client.pk %}" class="btn btn-sm btn-primary">View</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No clients yet.</p>
+{% endif %}
+{% endblock %}

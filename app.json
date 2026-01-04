@@ -1,0 +1,72 @@
+{
+  "app": {
+    "name": "Ecommerce Inventory Manager",
+    "description": "Multi-user ecommerce inventory management web app.",
+    "hosting": "Oracle Cloud Free Tier (Ubuntu VM, Docker, Nginx, Gunicorn)",
+    "backend": "Flask or Django (Python)",
+    "frontend": "React or Bootstrap",
+    "database": "PostgreSQL or MySQL",
+    "multi_user": true,
+    "monetization_ready": true
+  },
+  "features": {
+    "authentication": {
+      "user_registration": true,
+      "login_logout": true,
+      "isolated_user_data": true,
+      "admin_panel_for_user_management": true
+    },
+    "inventory": {
+      "fields": [
+        "name (required)",
+        "picture (optional)",
+        "color (optional)",
+        "pieces_bought",
+        "pieces_left (auto_calculated)",
+        "buying_price_per_piece",
+        "selling_price_per_piece"
+      ],
+      "logic": [
+        "stock_updates_when_sold"
+      ]
+    },
+    "orders": {
+      "add_order": [
+        "client_name",
+        "client_phone",
+        "client_address",
+        "item_selection",
+        "quantity",
+        "price",
+        "auto_add_client_to_clients_section",
+        "mark_as_processing",
+        "copy_to_current_orders"
+      ],
+      "current_orders": [
+        "list_processing_orders",
+        "update_status (Cancelled, Paid, Shipped)",
+        "move_to_order_history_when_updated"
+      ],
+      "order_history": [
+        "show_all_completed_cancelled_orders"
+      ]
+    },
+    "clients": [
+      "auto_populated_from_orders",
+      "show_client_info",
+      "show_order_history"
+    ],
+    "reports": {
+      "calculations": [
+        "total_buying_cost",
+        "total_revenue",
+        "shipping_costs",
+        "profit_and_loss"
+      ],
+      "visuals": [
+        "tables",
+        "charts"
+      ]
+    }
+  }
+}

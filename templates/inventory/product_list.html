@@ -3,74 +3,100 @@
 {% block title %}Inventory - Ecommerce Manager{% endblock %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-6">
-        <h1>Inventory Management</h1>
+<div class="row mb-4 align-items-center">
+    <div class="col-6">
+        <h1 class="mb-0">Inventory</h1>
+        <small class="text-muted">{{ products.count }} Items in stock</small>
     </div>
-    <div class="col-md-6 text-end">
-        <a href="{% url 'product_create' %}" class="btn btn-primary">
+    <div class="col-6 text-end">
+        <a href="{% url 'product_create' %}" class="btn btn-primary shadow-sm">
             <i class="fas fa-plus"></i> Add Product
         </a>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        {% if products %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Picture</th>
-                        <th>Name</th>
-                        <th>Color</th>
-                        <th>Bought</th>
-                        <th>Sold</th>
-                        <th>In Stock</th>
-                        <th>Buy Price</th>
-                        <th>Sell Price</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for product in products %}
-                    <tr>
-                        <td>
-                            {% if product.picture %}
-                            <img src="{{ product.picture.url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
-                            {% else %}
-                            <span class="text-muted">No image</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.color|default:"-" }}</td>
-                        <td>{{ product.pieces_bought }}</td>
-                        <td>{{ product.pieces_sold }}</td>
-                        <td>
-                            {% if product.pieces_left <= 10 %}
-                            <span class="badge bg-danger">{{ product.pieces_left }}</span>
-                            {% else %}
-                            <span class="badge bg-success">{{ product.pieces_left }}</span>
-                            {% endif %}
-                        </td>
-                        <td>${{ product.buying_price_per_piece }}</td>
-                        <td>${{ product.selling_price_per_piece }}</td>
-                        <td>
-                            <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-outline-danger">
-                                <i class="fas fa-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+{% if products %}
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 product-card">
+            <!-- Product Image -->
+            <div class="position-relative">
+                {% if product.picture %}
+                <img src="{{ product.picture.url }}" class="card-img-top" alt="{{ product.name }}"
+                    style="height: 250px; object-fit: cover;">
+                {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center text-muted"
+                    style="height: 250px;">
+                    <i class="fas fa-image fa-3x"></i>
+                </div>
+                {% endif %}
+
+                <!-- Stock Badge (Top Right) -->
+                <div class="position-absolute top-0 end-0 m-2">
+                    {% if product.pieces_left <= 2 %} <span class="badge bg-danger shadow">Low Stock: {{
+                        product.pieces_left }}</span>
+                        {% else %}
+                        <span class="badge bg-success shadow">{{ product.pieces_left }} left</span>
+                        {% endif %}
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title mb-0 fw-bold">{{ product.name }}</h5>
+                    <span class="badge bg-dark">{{ product.get_size_display }}</span>
+                </div>
+
+                <p class="card-text text-muted small mb-3">
+                    {% if product.color %}<i class="fas fa-circle text-secondary me-1" style="font-size: 0.6rem;"></i>
+                    {{ product.color }}{% endif %}
+                </p>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="h5 mb-0 text-primary">${{ product.selling_price_per_piece }}</span>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">Price</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="h6 mb-0">{{ product.pieces_sold }}</span>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">Sold</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-white border-top-0 pt-0 pb-3">
+                <div class="d-grid gap-2 d-flex justify-content-between">
+                    <a href="{% url 'product_update' product.pk %}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'product_delete' product.pk %}" class="btn btn-outline-danger btn-sm flex-fill">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
         </div>
-        {% else %}
-        <p class="text-center text-muted">No products in inventory. <a href="{% url 'product_create' %}">Add your first product</a></p>
-        {% endif %}
     </div>
+    {% endfor %}
 </div>
+{% else %}
+<div class="text-center py-5">
+    <div class="mb-4 text-muted">
+        <i class="fas fa-tshirt fa-4x"></i>
+    </div>
+    <h3>No products found</h3>
+    <p class="text-muted">Get started by adding your first nightwear item!</p>
+    <a href="{% url 'product_create' %}" class="btn btn-primary mt-3">Add Product</a>
+</div>
+{% endif %}
+
+<style>
+    .product-card {
+        transition: transform 0.2s;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
 {% endblock %}

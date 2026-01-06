@@ -5,10 +5,21 @@ from decimal import Decimal
 
 class Product(models.Model):
     """Product model for inventory management"""
+    SIZE_CHOICES = [
+        ('XS', 'Extra Small'),
+        ('S', 'Small'),
+        ('M', 'Medium'),
+        ('L', 'Large'),
+        ('XL', 'Extra Large'),
+        ('XXL', '2X Large'),
+        ('OS', 'One Size'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=255)
     picture = models.ImageField(upload_to='products/', blank=True, null=True)
     color = models.CharField(max_length=50, blank=True)
+    size = models.CharField(max_length=3, choices=SIZE_CHOICES, default='M')
     pieces_bought = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     pieces_sold = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     pieces_left = models.IntegerField(default=0, editable=False)
@@ -29,7 +40,7 @@ class Product(models.Model):
         ordering = ['-created_at']
         
     def __str__(self):
-        return f"{self.name} - {self.color}" if self.color else self.name
+        return f"{self.name} ({self.size}) - {self.color}" if self.color else f"{self.name} ({self.size})"
     
     def save(self, *args, **kwargs):
         # Auto-calculate pieces left

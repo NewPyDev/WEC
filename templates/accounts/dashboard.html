@@ -9,6 +9,27 @@
     </div>
 </div>
 
+<!-- Mobile-First Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="d-grid gap-3 d-md-flex justify-content-md-start">
+                    <a href="{% url 'order_create' %}" class="btn btn-success btn-lg flex-fill p-3 shadow-sm">
+                        <i class="fas fa-shopping-cart fa-lg me-2"></i> <strong>New Order</strong>
+                    </a>
+                    <a href="{% url 'product_create' %}" class="btn btn-primary btn-lg flex-fill p-3 shadow-sm">
+                        <i class="fas fa-plus-circle fa-lg me-2"></i> <strong>Add Product</strong>
+                    </a>
+                    <a href="{% url 'reports' %}" class="btn btn-info text-white btn-lg flex-fill p-3 shadow-sm">
+                        <i class="fas fa-chart-line fa-lg me-2"></i> <strong>Reports</strong>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Statistics Cards -->
 <div class="row">
     <div class="col-md-3 mb-4">
@@ -20,7 +41,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-success">
             <div class="card-body">
@@ -30,7 +51,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-warning">
             <div class="card-body">
@@ -40,7 +61,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-md-3 mb-4">
         <div class="card text-white bg-info">
             <div class="card-body">
@@ -113,14 +134,16 @@
                                 <td>#{{ order.id }}</td>
                                 <td>{{ order.client.name }}</td>
                                 <td>
-                                    <span class="badge bg-{% if order.status == 'processing' %}warning{% elif order.status == 'done' %}success{% else %}danger{% endif %}">
+                                    <span
+                                        class="badge bg-{% if order.status == 'processing' %}warning{% elif order.status == 'done' %}success{% else %}danger{% endif %}">
                                         {{ order.get_status_display }}
                                     </span>
                                 </td>
                                 <td>${{ order.grand_total|floatformat:2 }}</td>
                                 <td>{{ order.created_at|date:"M d, Y" }}</td>
                                 <td>
-                                    <a href="{% url 'order_detail' order.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                    <a href="{% url 'order_detail' order.id %}"
+                                        class="btn btn-sm btn-outline-primary">View</a>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -134,18 +157,8 @@
         </div>
     </div>
 </div>
-
-<!-- Quick Actions -->
-<div class="row mt-4">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Quick Actions</h5>
-                <a href="{% url 'product_create' %}" class="btn btn-primary">Add Product</a>
-                <a href="{% url 'order_create' %}" class="btn btn-success">Create Order</a>
-                <a href="{% url 'reports' %}" class="btn btn-info">View Reports</a>
-            </div>
-        </div>
-    </div>
+</div>
+</div>
+</div>
 </div>
 {% endblock %}

@@ -7,10 +7,10 @@
     <div class="row">
         <div class="col-12">
             <h1 class="h3 mb-3">Create New Order</h1>
-            
+
             <form method="post" id="orderForm">
                 {% csrf_token %}
-                
+
                 <!-- Client Information -->
                 <div class="card mb-4">
                     <div class="card-header">
@@ -21,7 +21,7 @@
                             <label for="{{ form.client.id_for_label }}">Existing Client</label>
                             {{ form.client }}
                         </div>
-                        
+
                         <div class="border-top pt-3">
                             <h6>Or Create New Client</h6>
                             <div class="row">
@@ -55,7 +55,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Order Items -->
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -76,7 +76,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Order Details -->
                 <div class="card mb-4">
                     <div class="card-header">
@@ -97,7 +97,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="d-flex justify-content-between">
                     <a href="{% url 'order_list' %}" class="btn btn-secondary">Cancel</a>
                     <button type="submit" class="btn btn-primary">Create Order</button>
@@ -108,32 +108,33 @@
 </div>
 
 <script>
-let itemCounter = 0;
+    let itemCounter = 0;
 
-// Product data from Django
-const products = [
-    {% for product in products %}
+    // Product data from Django
+    const products = [
+        {% for product in products %}
     {
-        id: {{ product.id }},
+        id: { { product.id } },
         name: "{{ product.name|escapejs }}",
-        color: "{{ product.color|escapejs }}",
-        price: {{ product.selling_price_per_piece }},
-        stock: {{ product.pieces_left }}
-    }{% if not forloop.last %},{% endif %}
+            color: "{{ product.color|escapejs }}",
+                size: "{{ product.get_size_display|escapejs }}",
+                    price: { { product.selling_price_per_piece } },
+        stock: { { product.pieces_left } }
+    } {% if not forloop.last %}, {% endif %}
     {% endfor %}
 ];
 
-function addOrderItem() {
-    const container = document.getElementById('order-items');
-    
-    // Build product options
-    let productOptions = '<option value="">Select Product</option>';
-    products.forEach(product => {
-        const displayName = product.name + (product.color ? ` (${product.color})` : '') + ` - Stock: ${product.stock}`;
-        productOptions += `<option value="${product.id}" data-price="${product.price}" data-stock="${product.stock}">${displayName}</option>`;
-    });
-    
-    const itemHtml = `
+    function addOrderItem() {
+        const container = document.getElementById('order-items');
+
+        // Build product options
+        let productOptions = '<option value="">Select Product</option>';
+        products.forEach(product => {
+            const displayName = product.name + ` (${product.size}) ` + (product.color ? ` - ${product.color}` : '') + ` - Stock: ${product.stock}`;
+            productOptions += `<option value="${product.id}" data-price="${product.price}" data-stock="${product.stock}">${displayName}</option>`;
+        });
+
+        const itemHtml = `
         <div class="order-item row mb-3" id="item-${itemCounter}">
             <div class="col-md-4">
                 <select name="product_id[]" class="form-control product-select" onchange="updatePrice(${itemCounter})" required>
@@ -154,64 +155,64 @@ function addOrderItem() {
             </div>
         </div>
     `;
-    container.insertAdjacentHTML('beforeend', itemHtml);
-    itemCounter++;
-}
+        container.insertAdjacentHTML('beforeend', itemHtml);
+        itemCounter++;
+    }
 
-function removeOrderItem(id) {
-    const item = document.getElementById(`item-${id}`);
-    if (item) {
-        item.remove();
+    function removeOrderItem(id) {
+        const item = document.getElementById(`item-${id}`);
+        if (item) {
+            item.remove();
+            updateOrderTotal();
+        }
+    }
+
+    function updatePrice(id) {
+        const select = document.querySelector(`#item-${id} .product-select`);
+        const priceInput = document.querySelector(`#item-${id} input[name="price[]"]`);
+        const selectedOption = select.options[select.selectedIndex];
+
+        if (selectedOption && selectedOption.dataset.price) {
+            priceInput.value = selectedOption.dataset.price;
+            updateItemTotal(id);
+        }
+    }
+
+    function updateItemTotal(id) {
+        const quantity = document.querySelector(`#item-${id} input[name="quantity[]"]`).value;
+        const price = document.querySelector(`#item-${id} input[name="price[]"]`).value;
+        const totalElement = document.querySelector(`#item-${id} .item-total`);
+
+        if (quantity && price) {
+            const total = parseFloat(quantity) * parseFloat(price);
+            totalElement.textContent = `$${total.toFixed(2)}`;
+        } else {
+            totalElement.textContent = '$0.00';
+        }
+
         updateOrderTotal();
     }
-}
 
-function updatePrice(id) {
-    const select = document.querySelector(`#item-${id} .product-select`);
-    const priceInput = document.querySelector(`#item-${id} input[name="price[]"]`);
-    const selectedOption = select.options[select.selectedIndex];
-    
-    if (selectedOption && selectedOption.dataset.price) {
-        priceInput.value = selectedOption.dataset.price;
-        updateItemTotal(id);
+    function updateOrderTotal() {
+        let total = 0;
+        document.querySelectorAll('.order-item').forEach(item => {
+            const quantity = item.querySelector('input[name="quantity[]"]').value;
+            const price = item.querySelector('input[name="price[]"]').value;
+            if (quantity && price) {
+                total += parseFloat(quantity) * parseFloat(price);
+            }
+        });
+
+        const shipping = document.getElementById('{{ form.shipping_cost.id_for_label }}').value || 0;
+        total += parseFloat(shipping);
+
+        document.getElementById('order-total').textContent = `$${total.toFixed(2)}`;
     }
-}
 
-function updateItemTotal(id) {
-    const quantity = document.querySelector(`#item-${id} input[name="quantity[]"]`).value;
-    const price = document.querySelector(`#item-${id} input[name="price[]"]`).value;
-    const totalElement = document.querySelector(`#item-${id} .item-total`);
-    
-    if (quantity && price) {
-        const total = parseFloat(quantity) * parseFloat(price);
-        totalElement.textContent = `$${total.toFixed(2)}`;
-    } else {
-        totalElement.textContent = '$0.00';
-    }
-    
-    updateOrderTotal();
-}
+    // Add first item on page load
+    addOrderItem();
 
-function updateOrderTotal() {
-    let total = 0;
-    document.querySelectorAll('.order-item').forEach(item => {
-        const quantity = item.querySelector('input[name="quantity[]"]').value;
-        const price = item.querySelector('input[name="price[]"]').value;
-        if (quantity && price) {
-            total += parseFloat(quantity) * parseFloat(price);
-        }
-    });
-    
-    const shipping = document.getElementById('{{ form.shipping_cost.id_for_label }}').value || 0;
-    total += parseFloat(shipping);
-    
-    document.getElementById('order-total').textContent = `$${total.toFixed(2)}`;
-}
-
-// Add first item on page load
-addOrderItem();
-
-// Update total when shipping cost changes
-document.getElementById('{{ form.shipping_cost.id_for_label }}').addEventListener('input', updateOrderTotal);
+    // Update total when shipping cost changes
+    document.getElementById('{{ form.shipping_cost.id_for_label }}').addEventListener('input', updateOrderTotal);
 </script>
 {% endblock %}

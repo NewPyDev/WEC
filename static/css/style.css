@@ -67,6 +67,7 @@ body {
     font-weight: 400;
     letter-spacing: -0.01em;
     overflow-x: hidden;
+    width: 100%;
 }
 
 /* Typography Hierarchy */
@@ -139,6 +140,8 @@ main {
     backdrop-filter: blur(10px);
     position: relative;
     z-index: 1030;
+    overflow: hidden;
+    /* Prevent animation from causing scrollbars */
 }
 
 .navbar::before {

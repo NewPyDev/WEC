@@ -515,7 +515,8 @@ main {
 
 .table tbody tr:hover {
     background-color: rgba(37, 99, 235, 0.05);
-    transform: scale(1.01);
+    /* transform: scale(1.01); - RE MOVED to prevent horizontal overflow */
+    box-shadow: inset 2px 0 0 var(--primary-color);
 }
 
 .table tbody td {
@@ -841,7 +842,7 @@ footer {
 }
 
 .card-modern:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-8px);
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 

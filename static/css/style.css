@@ -140,10 +140,11 @@ main {
     backdrop-filter: blur(10px);
     position: relative;
     z-index: 1030;
-    overflow: hidden;
-    /* Prevent animation from causing scrollbars */
+    /* overflow: hidden; - REMOVED to fix dropdowns */
 }
 
+/* Shimmer animation removed to prevent layout overflow */
+/*
 .navbar::before {
     content: '';
     position: absolute;
@@ -166,6 +167,7 @@ main {
         transform: translateX(100%) translateY(100%) rotate(30deg);
     }
 }
+*/
 
 .navbar-brand {
     font-family: 'Poppins', sans-serif;

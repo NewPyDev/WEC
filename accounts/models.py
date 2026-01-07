@@ -18,6 +18,7 @@ class User(AbstractUser):
         verbose_name='Preferred Shipping Company',
         help_text='Shipping company you prefer to use (FedEx, UPS, DHL, etc.) - Optional'
     )
+    company_logo = models.ImageField(upload_to='company_logos/', blank=True, null=True, help_text='Upload your company logo for invoices')
     
     def __str__(self):
         return self.username

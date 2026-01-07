@@ -36,9 +36,11 @@ class LoginForm(AuthenticationForm):
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'company_name', 'phone_number', 'shipping_company_name')
+        fields = ('username', 'email', 'first_name', 'last_name', 'company_name', 'company_logo', 'phone_number', 'shipping_company_name')
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
+            if field_name == 'company_logo':
+                field.widget.attrs['class'] = 'form-control-file'

@@ -178,3 +178,36 @@ def order_shipping_label(request, pk):
     
     return render(request, 'orders/shipping_label.html', context)
 
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from django.conf import settings
+
+@login_required
+def order_invoice_pdf(request, pk):
+    """Generate PDF invoice"""
+    order = get_object_or_404(Order, pk=pk, user=request.user)
+    
+    # Render template
+    template_path = 'orders/invoice_pdf.html'
+    context = {
+        'order': order,
+        'user': request.user,
+        'company_logo': request.user.company_logo.url if request.user.company_logo else None,
+    }
+    
+    # Create a file-like buffer to receive PDF data
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice_{order.id}.pdf"'
+    
+    # Find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    # Create PDF
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+       
+    # If error then show some funny view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response

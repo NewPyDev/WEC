@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm 1.5cm 3.5cm 1.5cm;
+
+            @frame header_frame {
+                /* Static Header */
+                -pdf-frame-content: header_content;
+                left: 50pt;
+                width: 512pt;
+                top: 50pt;
+                height: 100pt;
+            }
+
+            @frame footer_frame {
+                /* Static Footer */
+                -pdf-frame-content: footer_content;
+                left: 50pt;
+                width: 512pt;
+                top: 772pt;
+                height: 50pt;
+            }
+        }
+
+        body {
+            font-family: Helvetica;
+            font-size: 11pt;
+            color: #333333;
+        }
+
+        h1 {
+            font-size: 20pt;
+            color: #000000;
+            margin-bottom: 5pt;
+        }
+
+        h2 {
+            font-size: 14pt;
+            color: #555555;
+            margin-bottom: 2pt;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20pt;
+        }
+
+        th {
+            border-bottom: 2pt solid #333333;
+            text-align: left;
+            padding: 5pt;
+            font-weight: bold;
+        }
+
+        td {
+            border-bottom: 1pt solid #eeeeee;
+            padding: 6pt;
+            vertical-align: top;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .invoice-details {
+            margin-top: 20pt;
+        }
+
+        .client-details {
+            margin-top: 20pt;
+        }
+
+        .total-row td {
+            border-top: 2pt solid #333333;
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header Content -->
+    <div id="header_content">
+        <table>
+            <tr>
+                <td style="width: 50%; border: none;">
+                    {% if company_logo %}
+                    <img src="{{ company_logo }}" style="width: 150pt; height: auto;">
+                    {% else %}
+                    <h1>{{ user.company_name|default:"YOUR COMPANY" }}</h1>
+                    {% endif %}
+                </td>
+                <td style="width: 50%; text-align: right; border: none;">
+                    <h1>INVOICE</h1>
+                    <div>#{{ order.id }}</div>
+                    <div>Date: {{ order.created_at|date:"F d, Y" }}</div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Footer Content -->
+    <div id="footer_content">
+        <div style="text-align: center; color: #777777; font-size: 9pt;">
+            Thank you for your business! | {{ user.company_name }}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div>
+        <!-- From / To Section -->
+        <table style="margin-top: 20px;">
+            <tr>
+                <td style="width: 50%; border: none;">
+                    <span class="bold">From:</span><br>
+                    {{ user.company_name|default:user.username }}<br>
+                    {% if user.email %}{{ user.email }}<br>{% endif %}
+                    {% if user.phone_number %}{{ user.phone_number }}{% endif %}
+                </td>
+                <td style="width: 50%; border: none;">
+                    <span class="bold">Bill To:</span><br>
+                    {{ order.client.name }}<br>
+                    {% if order.client.email %}{{ order.client.email }}<br>{% endif %}
+                    {% if order.client.phone %}{{ order.client.phone }}<br>{% endif %}
+                    {{ order.client.address|linebreaksbr }}
+                </td>
+            </tr>
+        </table>
+
+        <!-- Items Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 40%;">Item</th>
+                    <th style="width: 15%;">Size</th>
+                    <th style="width: 15%;">Price</th>
+                    <th style="width: 10%;">Qty</th>
+                    <th style="width: 20%; text-align: right;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order.items.all %}
+                <tr>
+                    <td>
+                        {{ item.product.name }}
+                        {% if item.product.color %}<br><small style="color: #666;">Color: {{ item.product.color
+                            }}</small>{% endif %}
+                    </td>
+                    <td>{{ item.product.get_size_display }}</td>
+                    <td>${{ item.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td class="text-right">${{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+
+                <tr>
+                    <td colspan="4" class="text-right bold">Subtotal</td>
+                    <td class="text-right">${{ order.total_amount }}</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-right bold">Shipping</td>
+                    <td class="text-right">${{ order.shipping_cost }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="4" class="text-right">Grand Total</td>
+                    <td class="text-right">${{ order.grand_total }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        {% if order.notes %}
+        <div style="margin-top: 30pt; padding: 10pt; background-color: #f9f9f9; border: 1pt solid #eeeeee;">
+            <span class="bold">Notes:</span><br>
+            {{ order.notes }}
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

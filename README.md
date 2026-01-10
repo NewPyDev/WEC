@@ -2,7 +2,11 @@
 
 A powerful, mobile-first inventory and order management system built with **Django**. Designed for small businesses to track products, manage clients, and generate professional PDF invoices on the go.
 
+<<<<<<< HEAD
 ![Dashboard Preview](https://raw.githubusercontent.com/NewPyDev/WEC/main/GH%20Dashboard.png)
+=======
+![Dashboard Preview]([https://github.com/NewPyDev/WEC/blob/319e9f2f4d7ff06eaee55a74fc82fbb25d5c79d7/GH%20Dashboard.png])
+>>>>>>> c659c6641de351c105dc86e0559480016caebcbb
 
 ## ✨ Key Features
 
@@ -24,7 +28,7 @@ A powerful, mobile-first inventory and order management system built with **Djan
 ## 🚀 Quick Start (Demo)
 
 We have a public demo available!
-*   **URL**: `https://your-app-url.com`
+*   **URL**: `(https://hamidaseike.pythonanywhere.com/accounts/login/)`
 *   **Username**: `test`
 *   **Password**: `test`
 

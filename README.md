@@ -24,7 +24,7 @@ A powerful, mobile-first inventory and order management system built with **Djan
 ## 🚀 Quick Start (Demo)
 
 We have a public demo available!
-*   **URL**: `https://your-app-url.com`
+*   **URL**: `(https://hamidaseike.pythonanywhere.com/accounts/login/)`
 *   **Username**: `test`
 *   **Password**: `test`
 

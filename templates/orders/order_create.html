@@ -112,14 +112,15 @@
 
     // Product data from Django
     const products = [
-        {% for product in products %}
+        {% load l10n %}
+    {% for product in products %}
     {
-        id: { { product.id } },
-        name: "{{ product.name|escapejs }}",
-            color: "{{ product.color|escapejs }}",
-                size: "{{ product.get_size_display|escapejs }}",
-                    price: { { product.selling_price_per_piece } },
-        stock: { { product.pieces_left } }
+        id: "{{ product.id|unlocalize }}",
+            name: "{{ product.name|escapejs }}",
+                color: "{{ product.color|escapejs }}",
+                    size: "{{ product.get_size_display|escapejs }}",
+                        price: "{{ product.selling_price_per_piece|unlocalize }}",
+                            stock: "{{ product.pieces_left|unlocalize }}"
     } {% if not forloop.last %}, {% endif %}
     {% endfor %}
 ];

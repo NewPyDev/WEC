@@ -2,7 +2,7 @@
 
 A powerful, mobile-first inventory and order management system built with **Django**. Designed for small businesses to track products, manage clients, and generate professional PDF invoices on the go.
 
-![Dashboard Preview]((https://github.com/NewPyDev/WEC/blob/main/GH%20Dashboard.png))
+![Dashboard Preview]([(https://github.com/NewPyDev/WEC/blob/main/GH%20Dashboard.png)])
 
 ## ✨ Key Features
 
